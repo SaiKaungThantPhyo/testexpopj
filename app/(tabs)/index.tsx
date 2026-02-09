@@ -1,142 +1,153 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  ImageBackground,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function HomeScreen() {
   const router = useRouter();
 
   return (
     <View style={styles.container}>
-      {/* ၁။ Top Bar (Profile & Coins) */}
-      <View style={styles.topBar}>
-        <View style={styles.profileSection}>
-          <View style={styles.avatarCircle}>
-            <Ionicons name="person" size={24} color="white" />
+      {/* Background ပုံ - မင်းရဲ့ assets ထဲမှာ bg.jpeg လို့ ရှိနေလို့ jpeg လို့ ရေးပေးထားပါတယ် */}
+      <ImageBackground
+        source={require("../../assets/images/bg.jpeg")}
+        style={styles.background}
+        resizeMode="cover"
+      >
+        <SafeAreaView style={styles.safeArea}>
+          {/* Header Section */}
+          <View style={styles.headerCard}>
+            <View style={styles.profileInfo}>
+              <View style={styles.avatarContainer}>
+                <Ionicons name="person" size={24} color="#3B4CCA" />
+              </View>
+              <View>
+                <Text style={styles.trainerName}>Trainer Ash</Text>
+                <Text style={styles.levelText}>Lv. 5</Text>
+              </View>
+            </View>
+            <View style={styles.coinBadge}>
+              <Text style={styles.coinText}>💰 500</Text>
+            </View>
           </View>
-          <View>
-            <Text style={styles.playerName}>Trainer Ash</Text>
-            <Text style={styles.playerLevel}>Lv. 5</Text>
+
+          {/* Center Content (Pokemon Logo) */}
+          <View style={styles.centerArea}>
+            <Image
+              source={require("../../assets/images/Pokemon_logo.svg.png")}
+              style={styles.mainLogo}
+            />
+            <Text style={styles.editionText}>Battle Arena Edition</Text>
           </View>
-        </View>
 
-        <View style={styles.coinContainer}>
-          <Text style={styles.coinText}>💰 500</Text>
-        </View>
-      </View>
+          {/* Footer Buttons */}
+          <View style={styles.footer}>
+            <TouchableOpacity
+              style={styles.startBtn}
+              onPress={() => router.push("/Battle")}
+            >
+              <Ionicons name="flash" size={24} color="white" />
+              <Text style={styles.startBtnText}>START BATTLE</Text>
+            </TouchableOpacity>
 
-      {/* ၂။ Main Logo/Banner */}
-      <View style={styles.mainContent}>
-        <Image
-          source={{
-            uri: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/International_Pok%C3%A9mon_logo.svg/1200px-International_Pok%C3%A9mon_logo.svg.png",
-          }}
-          style={styles.logo}
-        />
-        <Text style={styles.subtitle}>Battle Arena Edition</Text>
-      </View>
+            <View style={styles.menuRow}>
+              <TouchableOpacity
+                style={styles.menuBox}
+                onPress={() => router.push("/Shop")} // ဒါလေး ထည့်လိုက်ပါ
+              >
+                <Ionicons name="cart" size={24} color="#333" />
+                <Text style={styles.menuText}>Shop</Text>
+              </TouchableOpacity>
 
-      {/* ၃။ Menu Buttons */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.battleBtn}
-          onPress={() => router.push("/Battle")}
-        >
-          <Ionicons
-            name="flash"
-            size={28}
-            color="white"
-            style={{ marginRight: 10 }}
-          />
-          <Text style={styles.battleBtnText}>START BATTLE</Text>
-        </TouchableOpacity>
-
-        <View style={styles.secondaryButtons}>
-          <TouchableOpacity style={styles.smallBtn}>
-            <Ionicons name="cart" size={24} color="#333" />
-            <Text style={styles.smallBtnText}>Shop</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.smallBtn}>
-            <Ionicons name="trophy" size={24} color="#333" />
-            <Text style={styles.smallBtnText}>Rank</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+              <TouchableOpacity style={styles.menuBox}>
+                <Ionicons name="trophy" size={24} color="#333" />
+                <Text style={styles.menuText}>Rank</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </SafeAreaView>
+      </ImageBackground>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f0f0f0" },
-  topBar: {
+  container: { flex: 1 },
+  background: { flex: 1 },
+  safeArea: { flex: 1 },
+  headerCard: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    backgroundColor: "rgba(59, 76, 202, 0.85)",
+    margin: 15,
+    padding: 15,
+    borderRadius: 20,
     alignItems: "center",
-    paddingTop: 50,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    backgroundColor: "#3B4CCA",
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    justifyContent: "space-between",
+    marginTop: 20,
   },
-  profileSection: { flexDirection: "row", alignItems: "center" },
-  avatarCircle: {
-    width: 45,
-    height: 45,
-    borderRadius: 22.5,
-    backgroundColor: "rgba(255,255,255,0.3)",
+  profileInfo: { flexDirection: "row", alignItems: "center" },
+  avatarContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "white",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 10,
   },
-  playerName: { color: "white", fontWeight: "bold", fontSize: 16 },
-  playerLevel: { color: "#FFCB05", fontSize: 12, fontWeight: "bold" },
-  coinContainer: {
+  trainerName: { color: "white", fontSize: 16, fontWeight: "bold" },
+  levelText: { color: "#FFCB05", fontSize: 12, fontWeight: "bold" },
+  coinBadge: {
     backgroundColor: "#FFCB05",
-    paddingHorizontal: 15,
-    paddingVertical: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: 15,
   },
-  coinText: { fontWeight: "bold", color: "#333" },
-  mainContent: { flex: 1, justifyContent: "center", alignItems: "center" },
-  logo: { width: 250, height: 100, resizeMode: "contain" },
-  subtitle: { fontSize: 18, color: "#666", fontWeight: "500", marginTop: -10 },
-  buttonContainer: { padding: 30, paddingBottom: 50 },
-  battleBtn: {
+  coinText: { fontWeight: "bold", fontSize: 13, color: "#333" },
+  centerArea: { flex: 1, justifyContent: "center", alignItems: "center" },
+  mainLogo: { width: 280, height: 120, resizeMode: "contain" },
+  editionText: {
+    color: "white",
+    fontSize: 20,
+    fontWeight: "bold",
+    marginTop: -10,
+    textShadowColor: "black",
+    textShadowRadius: 5,
+    textShadowOffset: { width: 1, height: 1 },
+  },
+  footer: { padding: 20, paddingBottom: 40 },
+  startBtn: {
     backgroundColor: "#CC0000",
     flexDirection: "row",
-    height: 65,
-    borderRadius: 35,
+    height: 60,
+    borderRadius: 30,
     justifyContent: "center",
     alignItems: "center",
-    elevation: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
     marginBottom: 20,
   },
-  battleBtnText: {
+  startBtnText: {
     color: "white",
-    fontSize: 22,
-    fontWeight: "900",
-    letterSpacing: 1,
+    fontSize: 20,
+    fontWeight: "bold",
+    marginLeft: 10,
   },
-  secondaryButtons: { flexDirection: "row", justifyContent: "space-around" },
-  smallBtn: {
+  menuRow: { flexDirection: "row", justifyContent: "center", gap: 20 },
+  menuBox: {
     backgroundColor: "white",
-    width: 80,
-    height: 80,
-    borderRadius: 15,
+    width: 85,
+    height: 85,
+    borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
     elevation: 3,
   },
-  smallBtnText: {
-    fontSize: 12,
-    marginTop: 5,
-    color: "#333",
-    fontWeight: "bold",
-  },
+  menuText: { marginTop: 5, fontWeight: "bold", color: "#333", fontSize: 12 },
 });
