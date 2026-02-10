@@ -10,13 +10,20 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useGame } from "../GameContext";
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { coins } = useGame(); // Coins ကို ယူသုံးမယ်
+
+  // ... (HeaderCard ထဲက coinBadge နေရာမှာ)
+  <View style={styles.coinBadge}>
+    <Text style={styles.coinText}>💰 {coins}</Text>
+  </View>;
 
   return (
     <View style={styles.container}>
-      {/* Background ပုံ - မင်းရဲ့ assets ထဲမှာ bg.jpeg လို့ ရှိနေလို့ jpeg လို့ ရေးပေးထားပါတယ် */}
+      {/* Background ပုံ -  bg.jpeg  */}
       <ImageBackground
         source={require("../../assets/images/bg.jpeg")}
         style={styles.background}
@@ -45,7 +52,7 @@ export default function HomeScreen() {
               source={require("../../assets/images/Pokemon_logo.svg.png")}
               style={styles.mainLogo}
             />
-            <Text style={styles.editionText}>Battle Arena Edition</Text>
+            {/* <Text style={styles.editionText}>Battle Arena Edition</Text> */}
           </View>
 
           {/* Footer Buttons */}

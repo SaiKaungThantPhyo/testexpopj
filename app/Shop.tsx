@@ -1,17 +1,17 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React from "react";
 import {
-    Alert,
-    FlatList,
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import { useGame } from "./GameContext"; // Context ကို ချိတ်မယ်
 
-// ရောင်းမယ့် Pokémon စာရင်း
 const POKEMON_ITEMS = [
   {
     id: "4",
@@ -45,16 +45,16 @@ const POKEMON_ITEMS = [
 
 export default function ShopScreen() {
   const router = useRouter();
-  const [myCoins, setMyCoins] = useState(500); // လက်ရှိရှိတဲ့ ပိုက်ဆံ
+  const { coins, buyPokemon } = useGame(); // Context ထဲက data နဲ့ function ကို ယူသုံးမယ်
 
-  const buyPokemon = (name, price) => {
-    if (myCoins >= price) {
-      setMyCoins((prev) => prev - price);
-      Alert.alert("အောင်မြင်ပါသည်!", `${name} ကို ဝယ်ယူပြီးပါပြီ။`);
+  const handleBuy = async (item) => {
+    const success = await buyPokemon(item);
+    if (success) {
+      Alert.alert("အောင်မြင်ပါသည်!", `${item.name} ကို ဝယ်ယူပြီးပါပြီ။`);
     } else {
       Alert.alert(
         "ပိုက်ဆံမလောက်ပါ!",
-        "Battle များများဆော့ပြီး Coins အရင်ရှာပါ။",
+        "တိုက်ပွဲများများတိုက်ပြီး Coins အရင်ရှာပါ။",
       );
     }
   };
@@ -68,11 +68,10 @@ export default function ShopScreen() {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Poke Shop</Text>
         <View style={styles.coinBadge}>
-          <Text style={styles.coinText}>💰 {myCoins}</Text>
+          <Text style={styles.coinText}>💰 {coins}</Text>
         </View>
       </View>
 
-      {/* Item List */}
       <FlatList
         data={POKEMON_ITEMS}
         keyExtractor={(item) => item.id}
@@ -84,7 +83,7 @@ export default function ShopScreen() {
             <Text style={styles.pokeName}>{item.name}</Text>
             <TouchableOpacity
               style={styles.buyBtn}
-              onPress={() => buyPokemon(item.name, item.price)}
+              onPress={() => handleBuy(item)}
             >
               <Text style={styles.buyBtnText}>💰 {item.price}</Text>
             </TouchableOpacity>
