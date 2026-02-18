@@ -39,9 +39,14 @@ export const GameProvider = ({ children }) => {
     }
     return false;
   };
+  const addCoins = async (amount: number) => {
+    const newCoins = coins + amount;
+    setCoins(newCoins);
+    await AsyncStorage.setItem("coins", JSON.stringify(newCoins));
+  };
 
   return (
-    <GameContext.Provider value={{ coins, myBag, buyPokemon }}>
+    <GameContext.Provider value={{ coins, myBag, buyPokemon, addCoins }}>
       {children}
     </GameContext.Provider>
   );

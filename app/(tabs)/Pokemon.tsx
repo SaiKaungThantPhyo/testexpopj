@@ -1,16 +1,20 @@
-import React from "react";
+import { Ionicons } from "@expo/vector-icons";
+import React, { useState } from "react";
 import {
   FlatList,
   Image,
   ImageBackground,
+  Modal,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
-import { useGame } from "../GameContext"; // context ကို ချိတ်မယ်
+import { useGame } from "../GameContext";
 
 export default function PokemonScreen() {
-  const { myBag } = useGame(); // Context ထဲက myBag (ဝယ်ထားတဲ့စာရင်း) ကို ယူသုံးမယ်
+  const { myBag } = useGame();
+  const [selectedPoke, setSelectedPoke] = useState(null); // ရွေးထားတဲ့ Pokemon သိမ်းဖို့
 
   return (
     <View style={styles.container}>
@@ -21,33 +25,84 @@ export default function PokemonScreen() {
         <View style={styles.overlay}>
           <Text style={styles.title}>🎒 My Bag</Text>
 
-          {/* myBag ထဲမှာ ဘာမှမရှိသေးရင် စာသားပြမယ် */}
-          {myBag.length === 0 ? (
-            <Text
-              style={{ color: "white", textAlign: "center", marginTop: 20 }}
-            >
-              အိတ်ထဲမှာ ဘာမှမရှိသေးဘူး။ ဆိုင်မှာ သွားဝယ်ပါ။
-            </Text>
-          ) : (
-            <FlatList
-              data={myBag} // ပေးထားတဲ့ data အသေအစား myBag ကို သုံးမယ်
-              keyExtractor={(item, index) => item.id + index}
-              renderItem={({ item }) => (
-                <View style={styles.pokeCard}>
-                  <Image source={{ uri: item.image }} style={styles.pokeImg} />
-                  <View>
-                    <Text style={styles.pokeName}>{item.name}</Text>
-                    <Text style={styles.pokeLv}>Level {item.lv || 1}</Text>
-                  </View>
+          <FlatList
+            data={myBag}
+            keyExtractor={(item, index) => item.id + index}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.pokeCard}
+                onPress={() => setSelectedPoke(item)} // နှိပ်လိုက်ရင် Detail ပြမယ်
+              >
+                <Image source={{ uri: item.image }} style={styles.pokeImg} />
+                <View>
+                  <Text style={styles.pokeName}>{item.name}</Text>
+                  <Text style={styles.pokeLv}>Level {item.lv || 1}</Text>
                 </View>
-              )}
-            />
-          )}
+                <Ionicons
+                  name="chevron-forward"
+                  size={20}
+                  color="#ccc"
+                  style={{ marginLeft: "auto" }}
+                />
+              </TouchableOpacity>
+            )}
+          />
+
+          {/* --- Detail Modal --- */}
+          <Modal
+            visible={selectedPoke !== null}
+            animationType="slide"
+            transparent={true}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                {selectedPoke && (
+                  <>
+                    <TouchableOpacity
+                      style={styles.closeBtn}
+                      onPress={() => setSelectedPoke(null)}
+                    >
+                      <Ionicons name="close" size={28} color="#333" />
+                    </TouchableOpacity>
+
+                    <Image
+                      source={{ uri: selectedPoke.image }}
+                      style={styles.detailImg}
+                    />
+                    <Text style={styles.detailName}>{selectedPoke.name}</Text>
+                    <Text style={styles.detailLv}>
+                      Level {selectedPoke.lv || 1}
+                    </Text>
+
+                    <View style={styles.statsBox}>
+                      <StatBar label="HP" value={80} color="#ff7675" />
+                      <StatBar label="Attack" value={65} color="#fab1a0" />
+                      <StatBar label="Defense" value={50} color="#ffeaa7" />
+                      <StatBar label="Speed" value={90} color="#81ecec" />
+                    </View>
+                  </>
+                )}
+              </View>
+            </View>
+          </Modal>
         </View>
       </ImageBackground>
     </View>
   );
 }
+
+// Stat Bar Component လေး
+const StatBar = ({ label, value, color }) => (
+  <View style={styles.statRow}>
+    <Text style={styles.statLabel}>{label}</Text>
+    <View style={styles.barBg}>
+      <View
+        style={[styles.barFill, { width: `${value}%`, backgroundColor: color }]}
+      />
+    </View>
+    <Text style={styles.statValue}>{value}</Text>
+  </View>
+);
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
@@ -60,7 +115,7 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: 28, fontWeight: "bold", color: "white", marginBottom: 20 },
   pokeCard: {
-    backgroundColor: "rgba(255,255,255,0.9)",
+    backgroundColor: "rgba(255,255,255,0.95)",
     flexDirection: "row",
     alignItems: "center",
     padding: 15,
@@ -70,4 +125,35 @@ const styles = StyleSheet.create({
   pokeImg: { width: 60, height: 60, marginRight: 15 },
   pokeName: { fontSize: 18, fontWeight: "bold", color: "#333" },
   pokeLv: { color: "#666", fontWeight: "bold" },
+
+  // Modal Styles
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.6)",
+  },
+  modalContent: {
+    width: "85%",
+    backgroundColor: "white",
+    borderRadius: 25,
+    padding: 20,
+    alignItems: "center",
+  },
+  closeBtn: { alignSelf: "flex-end" },
+  detailImg: { width: 150, height: 150 },
+  detailName: { fontSize: 24, fontWeight: "bold", marginTop: 10 },
+  detailLv: { fontSize: 16, color: "#888", marginBottom: 20 },
+  statsBox: { width: "100%", marginTop: 10 },
+  statRow: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
+  statLabel: { width: 60, fontWeight: "bold" },
+  barBg: {
+    flex: 1,
+    height: 10,
+    backgroundColor: "#eee",
+    borderRadius: 5,
+    marginHorizontal: 10,
+  },
+  barFill: { height: "100%", borderRadius: 5 },
+  statValue: { width: 30, textAlign: "right", fontWeight: "bold" },
 });

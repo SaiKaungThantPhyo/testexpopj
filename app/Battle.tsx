@@ -1,29 +1,32 @@
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-    Image,
-    Modal,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
+// ၁။ GameContext ကို import လုပ်ပါ
+import { useGame } from "./GameContext";
 
 export default function BattleScreen() {
   const router = useRouter();
 
-  // States
+  // ၂။ addCoins function ကို context ထဲကနေ ယူသုံးမယ်
+  const { addCoins } = useGame();
+
   const [playerHP, setPlayerHP] = useState(100);
   const [enemyHP, setEnemyHP] = useState(100);
   const [enemyOpacity, setEnemyOpacity] = useState(1);
   const [playerOpacity, setPlayerOpacity] = useState(1);
   const [enemyID, setEnemyID] = useState(1);
-  const [coins, setCoins] = useState(0); // ရွှေပြားသိမ်းရန်
+  const [coins, setCoins] = useState(0);
   const [gameState, setGameState] = useState<"playing" | "won" | "lost">(
     "playing",
   );
 
-  // ရန်သူကို ကျပန်းရွေးခြင်း
   useEffect(() => {
     const randomID = Math.floor(Math.random() * 151) + 1;
     setEnemyID(randomID);
@@ -32,7 +35,6 @@ export default function BattleScreen() {
   const handleAttack = () => {
     if (gameState !== "playing") return;
 
-    // ၁။ ကိုယ်က တိုက်ခိုက်ခြင်း
     setEnemyOpacity(0.2);
     setTimeout(() => setEnemyOpacity(1), 100);
 
@@ -42,11 +44,12 @@ export default function BattleScreen() {
 
     if (newEnemyHP <= 0) {
       setGameState("won");
-      setCoins((prev) => prev + 50); // နိုင်ရင် ၅၀ ဖိုးရမယ်
+
+      // ၃။ ဒီနေရာမှာ addCoins ကို ခေါ်လိုက်တာပါ
+      addCoins(50);
       return;
     }
 
-    // ၂။ ရန်သူက ပြန်တိုက်ခြင်း (၀.၆ စက္ကန့်အကြာ)
     setTimeout(() => {
       setPlayerOpacity(0.2);
       setTimeout(() => setPlayerOpacity(1), 100);
@@ -63,16 +66,14 @@ export default function BattleScreen() {
 
   return (
     <View style={styles.container}>
-      {/* ထိပ်က Coin ပြတဲ့နေရာ */}
+      {/* UI ပိုင်းက အရင်အတိုင်းပဲ ထားလို့ရပါတယ် */}
       <View style={styles.coinBadge}>
         <Text style={styles.coinText}>💰 Coins: {coins}</Text>
       </View>
 
-      {/* Enemy */}
+      {/* Enemy Section */}
       <View style={styles.side}>
-        <View style={styles.hpLabelContainer}>
-          <Text style={styles.hpLabel}>Enemy HP: {enemyHP}%</Text>
-        </View>
+        <Text style={styles.hpLabel}>Enemy HP: {enemyHP}%</Text>
         <View style={styles.hpBarContainer}>
           <View
             style={[
@@ -91,7 +92,7 @@ export default function BattleScreen() {
 
       <Text style={styles.vs}>VS</Text>
 
-      {/* Player */}
+      {/* Player Section */}
       <View style={styles.side}>
         <Image
           source={{
@@ -110,7 +111,6 @@ export default function BattleScreen() {
         <Text style={styles.hpLabel}>Pikachu (You): {playerHP}%</Text>
       </View>
 
-      {/* Attack Button */}
       <TouchableOpacity
         style={[
           styles.attackBtn,
@@ -124,7 +124,6 @@ export default function BattleScreen() {
         </Text>
       </TouchableOpacity>
 
-      {/* နိုင်/ရှုံး ရလဒ်ပြမည့် Modal (Popup) */}
       <Modal visible={gameState !== "playing"} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -133,12 +132,12 @@ export default function BattleScreen() {
             </Text>
             <Text style={styles.resultMessage}>
               {gameState === "won"
-                ? `Mewtwo ကို နိုင်လိုက်ပြီ! \n +50 Coins ရရှိပါတယ်။`
+                ? `ရန်သူကို နိုင်လိုက်ပြီ! \n +50 Coins ကို သိမ်းဆည်းလိုက်ပါပြီ။`
                 : "Pikachu မေ့လဲသွားပါပြီ။"}
             </Text>
             <TouchableOpacity
               style={styles.backBtn}
-              onPress={() => router.replace("/")} // Home ကို ပြန်ပို့မယ်
+              onPress={() => router.replace("/")}
             >
               <Text style={styles.backBtnText}>BACK TO LOBBY</Text>
             </TouchableOpacity>
@@ -149,7 +148,9 @@ export default function BattleScreen() {
   );
 }
 
+// Styles ကတော့ မင်းရဲ့ မူရင်းအတိုင်းပဲ ဆက်သုံးလို့ရပါတယ် (backBtnText မှာ quote ပိတ်ဖို့ မမေ့ပါနဲ့)
 const styles = StyleSheet.create({
+  // ... မင်းရဲ့ မူရင်း styles များ
   container: {
     flex: 1,
     backgroundColor: "#fdfdfd",
@@ -193,7 +194,6 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   btnText: { color: "#fff", fontSize: 20, fontWeight: "bold" },
-  // Modal Styles
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.7)",
@@ -216,5 +216,5 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
   },
-  backBtnText: { color: "#fff", fontWeight: "bold" },
+  backBtnText: { color: "#fff", fontWeight: "bold" }, // ဒီမှာ quote ပြင်ထားတယ်
 });
