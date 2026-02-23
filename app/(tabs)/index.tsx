@@ -4,6 +4,8 @@ import React from "react";
 import {
   Image,
   ImageBackground,
+  Linking,
+  Platform,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -13,6 +15,12 @@ import {
 import { useGame } from "../GameContext";
 
 export default function HomeScreen() {
+  const handleRateUs = () => {
+    const GOOGLE_PACKAGE_NAME = "com.yourpokename.app"; // မင်းရဲ့ App package name
+    if (Platform.OS === "android") {
+      Linking.openURL(`market://details?id=${GOOGLE_PACKAGE_NAME}`);
+    }
+  };
   const router = useRouter();
   const { coins } = useGame(); // Coins ကို ယူသုံးမယ်
 
@@ -73,10 +81,14 @@ export default function HomeScreen() {
                 <Ionicons name="cart" size={24} color="#333" />
                 <Text style={styles.menuText}>Shop</Text>
               </TouchableOpacity>
-
-              <TouchableOpacity style={styles.menuBox}>
+              {/* <TouchableOpacity style={styles.menuBox}>
                 <Ionicons name="trophy" size={24} color="#333" />
                 <Text style={styles.menuText}>Rank</Text>
+              </TouchableOpacity> */}
+              // UI ထဲက ခလုတ်နေရာ
+              <TouchableOpacity style={styles.menuItem} onPress={handleRateUs}>
+                <Ionicons name="star-half" size={30} color="#f1c40f" />
+                <Text style={styles.menuLabel}>Rate Us</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -157,4 +169,30 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   menuText: { marginTop: 5, fontWeight: "bold", color: "#333", fontSize: 12 },
+
+  menuGrid: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginTop: 20,
+    paddingHorizontal: 20,
+  },
+  menuItem: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 15,
+    alignItems: "center",
+    width: "40%",
+    // Shadow ထည့်ချင်ရင် (iOS & Android)
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  menuLabel: {
+    marginTop: 10,
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+  },
 });
