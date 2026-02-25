@@ -15,7 +15,7 @@ export const GameProvider = ({ children }) => {
     },
   ]);
 
-  // အက်ပ်စဖွင့်တာနဲ့ သိမ်းထားတဲ့ Data တွေကို ပြန်ယူမယ်
+  // Load data when app starts
   useEffect(() => {
     const loadGameData = async () => {
       try {
@@ -32,7 +32,7 @@ export const GameProvider = ({ children }) => {
     loadGameData();
   }, []);
 
-  // ပိုက်ဆံဝယ်တဲ့ Function
+  // Purchase Pokemon logic
   const buyPokemon = async (pokemon) => {
     const isAlreadyOwned = myBag.some((p) => p.id === pokemon.id);
 
@@ -40,20 +40,17 @@ export const GameProvider = ({ children }) => {
 
     if (coins >= pokemon.price) {
       try {
-        // ၁။ State ကို Update လုပ်မယ် (Functional Update ထဲမှာ AsyncStorage ကို တန်းသိမ်းတယ်)
-        setCoins((prevCoins) => {
-          const updatedCoins = prevCoins - pokemon.price;
-          AsyncStorage.setItem("coins", JSON.stringify(updatedCoins));
-          return updatedCoins;
-        });
+        const newCoins = coins - pokemon.price;
+        const newBag = [...myBag, { ...pokemon, lv: 1 }];
 
-        setMyBag((prevBag) => {
-          const updatedBag = [...prevBag, { ...pokemon, lv: 1 }];
-          AsyncStorage.setItem("myBag", JSON.stringify(updatedBag));
-          return updatedBag;
-        });
+        // Update State
+        setCoins(newCoins);
+        setMyBag(newBag);
 
-        // အောင်မြင်သွားရင် true ပြန်ပေးမယ်
+        // Update Storage
+        await AsyncStorage.setItem("coins", JSON.stringify(newCoins));
+        await AsyncStorage.setItem("myBag", JSON.stringify(newBag));
+
         return true;
       } catch (e) {
         console.error("Storage error:", e);
@@ -63,24 +60,28 @@ export const GameProvider = ({ children }) => {
     return false;
   };
 
-  // ပိုက်ဆံတိုးတဲ့ Function (Battle နိုင်တဲ့အခါ သုံးဖို့)
+  // Add coins (e.g., after winning a battle)
   const addCoins = async (amount) => {
-    setCoins((prev) => {
-      const updatedCoins = prev + amount;
-      AsyncStorage.setItem("coins", JSON.stringify(updatedCoins));
-      return updatedCoins;
-    });
-  };
-  // GameContext.tsx ထဲက addCoins အောက်မှာ ဒါလေး ထည့်ပေးပါ
-  const removeCoins = async (amount) => {
-    setCoins((prev) => {
-      const updatedCoins = Math.max(0, prev - amount); // 0 ထက်တော့ မနည်းစေရဘူး
-      AsyncStorage.setItem("coins", JSON.stringify(updatedCoins));
-      return updatedCoins;
-    });
+    const updatedCoins = coins + amount;
+    setCoins(updatedCoins);
+    try {
+      await AsyncStorage.setItem("coins", JSON.stringify(updatedCoins));
+    } catch (e) {
+      console.error("Failed to add coins:", e);
+    }
   };
 
-  // return value ထဲမှာ removeCoins ကိုပါ ထည့်ပေးဖို့ မမေ့ပါနဲ့
+  // Remove coins (e.g., after losing a battle)
+  const removeCoins = async (amount) => {
+    const updatedCoins = Math.max(0, coins - amount);
+    setCoins(updatedCoins);
+    try {
+      await AsyncStorage.setItem("coins", JSON.stringify(updatedCoins));
+    } catch (e) {
+      console.error("Failed to remove coins:", e);
+    }
+  };
+
   return (
     <GameContext.Provider
       value={{ coins, myBag, buyPokemon, addCoins, removeCoins }}
@@ -90,5 +91,12 @@ export const GameProvider = ({ children }) => {
   );
 };
 
-export const useGame = () => useContext(GameContext);
+export const useGame = () => {
+  const context = useContext(GameContext);
+  if (!context) {
+    throw new Error("useGame must be used within a GameProvider");
+  }
+  return context;
+};
+
 export default GameProvider;
