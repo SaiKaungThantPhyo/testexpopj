@@ -6,7 +6,7 @@ import {
   FlatList,
   Image,
   Modal,
-  StyleSheet, // <--- ဒါလေး ထည့်ဖို့ မမေ့ပါနဲ့
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
@@ -17,7 +17,7 @@ export default function BattleScreen() {
   const router = useRouter();
   const gameContext = useGame();
 
-  // Handle case where context might be null
+  // Safeguard: Check if context is available
   if (!gameContext) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -26,15 +26,17 @@ export default function BattleScreen() {
     );
   }
 
-  // အပေါ်မှာ တစ်ခါတည်း destructure လုပ်လိုက်ရင် ရပါပြီ (နှစ်ခါ ရေးစရာမလိုတော့ဘူး)
-  const { myBag, addCoins, removeCoins } = gameContext;
+  // Extract variables and functions from GameContext
+  const { myBag, addCoins, removeCoins, incrementBattle, battleCount } =
+    gameContext;
 
-  // States
+  // Battle UI and Selection States
   const [selectedMyPoke, setSelectedMyPoke] = useState<any>(null);
   const [showPicker, setShowPicker] = useState(true);
   const [enemyID, setEnemyID] = useState<number | null>(null);
   const [isImgLoading, setIsImgLoading] = useState(true);
 
+  // HP and Animation States
   const [playerHP, setPlayerHP] = useState(100);
   const [enemyHP, setEnemyHP] = useState(100);
   const [enemyOpacity, setEnemyOpacity] = useState(1);
@@ -43,6 +45,7 @@ export default function BattleScreen() {
     "playing",
   );
 
+  // Initialize random enemy ID on mount
   useEffect(() => {
     const randomID = Math.floor(Math.random() * 151) + 1;
     setEnemyID(randomID);
@@ -51,41 +54,53 @@ export default function BattleScreen() {
   const handleAttack = () => {
     if (gameState !== "playing" || !selectedMyPoke) return;
 
-    // --- Player Turn ---
-    setEnemyOpacity(0.2);
+    // --- PHASE 1: Player's Attack ---
+    setEnemyOpacity(0.2); // Trigger hit animation
     setTimeout(() => setEnemyOpacity(1), 100);
 
-    const dmgToEnemy = Math.floor(Math.random() * 25) + 15;
+    const dmgToEnemy = Math.floor(Math.random() * 40) + 20;
     const newEHP = Math.max(0, enemyHP - dmgToEnemy);
     setEnemyHP(newEHP);
 
+    // Victory Condition
     if (newEHP <= 0) {
       setGameState("won");
       addCoins(50);
+      incrementBattle(); // Count this battle to the history
       return;
     }
 
-    // --- Enemy Turn ---
+    // --- PHASE 2: Enemy's Attack (Delayed) ---
     setTimeout(() => {
       if (newEHP <= 0) return;
 
-      setPlayerOpacity(0.2);
+      setPlayerOpacity(0.2); // Trigger hit animation
       setTimeout(() => setPlayerOpacity(1), 100);
 
-      const dmgToPlayer = Math.floor(Math.random() * 20) + 10;
+      // --- THE LOSING ALGORITHM ---
+      // If it's the 3rd, 6th, or 9th match, force a loss
+      let dmgToPlayer;
+      if ((battleCount + 1) % 3 === 0) {
+        dmgToPlayer = 100; // Scripted critical hit (Instant Loss)
+      } else {
+        dmgToPlayer = Math.floor(Math.random() * 20) + 10; // Normal damage
+      }
+
       const newPHP = Math.max(0, playerHP - dmgToPlayer);
       setPlayerHP(newPHP);
 
+      // Defeat Condition
       if (newPHP <= 0) {
         setGameState("lost");
-        removeCoins(10); // Player ရှုံးရင် ၁၀ လျော့မယ်
+        removeCoins(10);
+        incrementBattle(); // Count this battle to the history
       }
     }, 600);
   };
 
   return (
     <View style={styles.container}>
-      {/* Selection Modal */}
+      {/* Pokemon Selection Modal */}
       <Modal visible={showPicker} animationType="slide">
         <View style={styles.pickerContainer}>
           <TouchableOpacity
@@ -96,6 +111,10 @@ export default function BattleScreen() {
           </TouchableOpacity>
 
           <Text style={styles.pickerTitle}>Select Your Pokémon</Text>
+          {/* battle count 
+          <Text style={styles.subTitle}>
+            Battle Progress: {battleCount} played
+          </Text> */}
 
           <FlatList
             data={myBag}
@@ -118,7 +137,7 @@ export default function BattleScreen() {
         </View>
       </Modal>
 
-      {/* Enemy Side */}
+      {/* Enemy Health and Sprite */}
       <View style={styles.side}>
         <View style={styles.hpBarContainer}>
           <View
@@ -149,7 +168,7 @@ export default function BattleScreen() {
 
       <Text style={styles.vs}>VS</Text>
 
-      {/* Player Side */}
+      {/* Player Health and Sprite */}
       <View style={styles.side}>
         {selectedMyPoke && (
           <>
@@ -172,6 +191,7 @@ export default function BattleScreen() {
         )}
       </View>
 
+      {/* Main Attack Button */}
       <TouchableOpacity
         style={[
           styles.attackBtn,
@@ -187,6 +207,7 @@ export default function BattleScreen() {
         </Text>
       </TouchableOpacity>
 
+      {/* Result Modal (Win/Loss Message) */}
       <Modal
         visible={gameState !== "playing" && !showPicker}
         transparent
@@ -212,7 +233,6 @@ export default function BattleScreen() {
   );
 }
 
-// styles object မင်းအရင်ရေးထားတာကို ဒီအောက်မှာ ဆက်ထည့်ပေးလိုက်ပါ...
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -247,12 +267,8 @@ const styles = StyleSheet.create({
   },
   btnText: { color: "#fff", fontSize: 20, fontWeight: "bold" },
   pickerContainer: { flex: 1, padding: 40, backgroundColor: "#f5f6fa" },
-  pickerTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 20,
-    textAlign: "center",
-  },
+  pickerTitle: { fontSize: 22, fontWeight: "bold", textAlign: "center" },
+  subTitle: { textAlign: "center", marginBottom: 20, color: "#666" },
   pickerItem: {
     flexDirection: "row",
     alignItems: "center",
