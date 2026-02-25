@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useIsFocused } from "@react-navigation/native";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Image,
   ImageBackground,
@@ -15,23 +16,27 @@ import {
 import { useGame } from "../GameContext";
 
 export default function HomeScreen() {
+  const router = useRouter();
+  // Context ဆီက coins ကို တိုက်ရိုက်ယူသုံးမယ်
+  const { coins } = useGame();
+  const isFocused = useIsFocused(); // Screen ကို ကြည့်နေသလား စစ်မယ်
+
+  useEffect(() => {
+    if (isFocused) {
+      // Screen ရှေ့ကို ရောက်လာတိုင်း ဒီနေရာမှာ re-render ဖြစ်အောင် လုပ်လို့ရပါတယ်
+      console.log("Home is focused, coins:", coins);
+    }
+  }, [isFocused, coins]);
+
   const handleRateUs = () => {
-    const GOOGLE_PACKAGE_NAME = "com.yourpokename.app"; // မင်းရဲ့ App package name
+    const GOOGLE_PACKAGE_NAME = "com.yourpokename.app";
     if (Platform.OS === "android") {
       Linking.openURL(`market://details?id=${GOOGLE_PACKAGE_NAME}`);
     }
   };
-  const router = useRouter();
-  const { coins } = useGame(); // Coins ကို ယူသုံးမယ်
-
-  // ... (HeaderCard ထဲက coinBadge နေရာမှာ)
-  <View style={styles.coinBadge}>
-    <Text style={styles.coinText}>💰 {coins}</Text>
-  </View>;
 
   return (
     <View style={styles.container}>
-      {/* Background ပုံ -  bg.jpeg  */}
       <ImageBackground
         source={require("../../assets/images/bg.jpeg")}
         style={styles.background}
@@ -49,18 +54,19 @@ export default function HomeScreen() {
                 <Text style={styles.levelText}>Lv. 5</Text>
               </View>
             </View>
+
             <View style={styles.coinBadge}>
-              <Text style={styles.coinText}>💰 500</Text>
+              {/* Context ကလာတဲ့ coins တိုက်ရိုက်ပြ*/}
+              <Text style={styles.coinText}>💰 {coins}</Text>
             </View>
           </View>
 
-          {/* Center Content (Pokemon Logo) */}
+          {/* Center Content */}
           <View style={styles.centerArea}>
             <Image
               source={require("../../assets/images/Pokemon_logo.svg.png")}
               style={styles.mainLogo}
             />
-            {/* <Text style={styles.editionText}>Battle Arena Edition</Text> */}
           </View>
 
           {/* Footer Buttons */}
@@ -73,21 +79,17 @@ export default function HomeScreen() {
               <Text style={styles.startBtnText}>START BATTLE</Text>
             </TouchableOpacity>
 
-            <View style={styles.menuRow}>
+            <View style={styles.menuGrid}>
               <TouchableOpacity
-                style={styles.menuBox}
-                onPress={() => router.push("/Shop")} // ဒါလေး ထည့်လိုက်ပါ
+                style={styles.menuItem}
+                onPress={() => router.push("/Shop")}
               >
-                <Ionicons name="cart" size={24} color="#333" />
-                <Text style={styles.menuText}>Shop</Text>
+                <Ionicons name="cart" size={30} color="#333" />
+                <Text style={styles.menuLabel}>Shop</Text>
               </TouchableOpacity>
-              {/* <TouchableOpacity style={styles.menuBox}>
-                <Ionicons name="trophy" size={24} color="#333" />
-                <Text style={styles.menuText}>Rank</Text>
-              </TouchableOpacity> */}
-              // UI ထဲက ခလုတ်နေရာ
+
               <TouchableOpacity style={styles.menuItem} onPress={handleRateUs}>
-                <Ionicons name="star-half" size={30} color="#f1c40f" />
+                <Ionicons name="star" size={30} color="#f1c40f" />
                 <Text style={styles.menuLabel}>Rate Us</Text>
               </TouchableOpacity>
             </View>
@@ -133,15 +135,6 @@ const styles = StyleSheet.create({
   coinText: { fontWeight: "bold", fontSize: 13, color: "#333" },
   centerArea: { flex: 1, justifyContent: "center", alignItems: "center" },
   mainLogo: { width: 280, height: 120, resizeMode: "contain" },
-  editionText: {
-    color: "white",
-    fontSize: 20,
-    fontWeight: "bold",
-    marginTop: -10,
-    textShadowColor: "black",
-    textShadowRadius: 5,
-    textShadowOffset: { width: 1, height: 1 },
-  },
   footer: { padding: 20, paddingBottom: 40 },
   startBtn: {
     backgroundColor: "#CC0000",
@@ -158,18 +151,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginLeft: 10,
   },
-  menuRow: { flexDirection: "row", justifyContent: "center", gap: 20 },
-  menuBox: {
-    backgroundColor: "white",
-    width: 85,
-    height: 85,
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    elevation: 3,
-  },
-  menuText: { marginTop: 5, fontWeight: "bold", color: "#333", fontSize: 12 },
-
   menuGrid: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -178,11 +159,12 @@ const styles = StyleSheet.create({
   },
   menuItem: {
     backgroundColor: "#fff",
-    padding: 20,
-    borderRadius: 15,
+    paddingVertical: 15,
+    borderRadius: 20,
     alignItems: "center",
-    width: "40%",
-    // Shadow ထည့်ချင်ရင် (iOS & Android)
+    width: "45%",
+    height: 100,
+    justifyContent: "center",
     elevation: 5,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },

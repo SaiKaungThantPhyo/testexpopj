@@ -1,7 +1,8 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  ActivityIndicator, // Loading အတွက်
+  ActivityIndicator,
   FlatList,
   Image,
   Modal,
@@ -68,7 +69,17 @@ export default function BattleScreen() {
       {/* 1. Selection Modal - အိတ်ထဲက အကောင်ရွေးရန် */}
       <Modal visible={showPicker} animationType="slide">
         <View style={styles.pickerContainer}>
+          {/* အပေါ်က နောက်ပြန်ဆုတ်ခလုတ် */}
+          <TouchableOpacity
+            style={{ alignSelf: "flex-start", marginBottom: 10 }}
+            onPress={() => router.back()} // Lobby ကို ပြန်သွားမယ်
+          >
+            <Ionicons name="arrow-back" size={30} color="#333" />
+          </TouchableOpacity>
+
           <Text style={styles.pickerTitle}>Select Your Pokémon</Text>
+
+          {/* ဒီ FlatList အပိုင်းကို ထည့်ပေးပါ */}
           <FlatList
             data={myBag}
             keyExtractor={(item, index) => index.toString()}
@@ -168,7 +179,9 @@ export default function BattleScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.resultTitle}>
-              {gameState === "won" ? "VICTORY! 🎉" : "DEFEAT 💀"}
+              {gameState === "won"
+                ? "VICTORY! 🎉 \n💰 50 ရရှိပါတယ်။"
+                : "DEFEAT 💀"}
             </Text>
             <TouchableOpacity
               style={styles.backBtn}
@@ -249,7 +262,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "80%",
   },
-  resultTitle: { fontSize: 28, fontWeight: "bold", marginBottom: 20 },
+  resultTitle: {
+    fontSize: 23,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
+  },
   backBtn: {
     backgroundColor: "#3498db",
     padding: 15,

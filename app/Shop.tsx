@@ -49,7 +49,12 @@ export default function ShopScreen() {
 
   const handleBuy = async (item) => {
     const success = await buyPokemon(item);
-    if (success) {
+    if (success === "owned") {
+      Alert.alert(
+        "ရှိပြီးသားဖြစ်သည်!",
+        `${item.name} က သင့်အိတ်ထဲမှာ ရှိနေပြီးသားပါ။`,
+      );
+    } else if (success) {
       Alert.alert("အောင်မြင်ပါသည်!", `${item.name} ကို ဝယ်ယူပြီးပါပြီ။`);
     } else {
       Alert.alert(
@@ -63,7 +68,7 @@ export default function ShopScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity onPress={() => router.replace("/")}>
           <Ionicons name="arrow-back" size={28} color="white" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Poke Shop</Text>

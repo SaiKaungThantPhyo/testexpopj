@@ -15,34 +15,61 @@ export const GameProvider = ({ children }) => {
     },
   ]);
 
-  // ဂိမ်းဖွင့်လိုက်တာနဲ့ သိမ်းထားတဲ့ Data တွေ ပြန်ယူမယ်
+  // အက်ပ်စဖွင့်တာနဲ့ သိမ်းထားတဲ့ Data တွေကို ပြန်ယူမယ်
   useEffect(() => {
+    const loadGameData = async () => {
+      try {
+        const savedCoins = await AsyncStorage.getItem("coins");
+        const savedBag = await AsyncStorage.getItem("myBag");
+
+        if (savedCoins !== null) setCoins(JSON.parse(savedCoins));
+        if (savedBag !== null) setMyBag(JSON.parse(savedBag));
+      } catch (error) {
+        console.error("Failed to load game data:", error);
+      }
+    };
+
     loadGameData();
   }, []);
 
-  const loadGameData = async () => {
-    const savedCoins = await AsyncStorage.getItem("coins");
-    const savedBag = await AsyncStorage.getItem("myBag");
-    if (savedCoins) setCoins(JSON.parse(savedCoins));
-    if (savedBag) setMyBag(JSON.parse(savedBag));
-  };
-
+  // ပိုက်ဆံဝယ်တဲ့ Function
   const buyPokemon = async (pokemon) => {
+    const isAlreadyOwned = myBag.some((p) => p.id === pokemon.id);
+
+    if (isAlreadyOwned) return "owned";
+
     if (coins >= pokemon.price) {
-      const newCoins = coins - pokemon.price;
-      const newBag = [...myBag, { ...pokemon, lv: 1 }];
-      setCoins(newCoins);
-      setMyBag(newBag);
-      await AsyncStorage.setItem("coins", JSON.stringify(newCoins));
-      await AsyncStorage.setItem("myBag", JSON.stringify(newBag));
-      return true;
+      try {
+        // ၁။ State ကို Update လုပ်မယ် (Functional Update ထဲမှာ AsyncStorage ကို တန်းသိမ်းတယ်)
+        setCoins((prevCoins) => {
+          const updatedCoins = prevCoins - pokemon.price;
+          AsyncStorage.setItem("coins", JSON.stringify(updatedCoins));
+          return updatedCoins;
+        });
+
+        setMyBag((prevBag) => {
+          const updatedBag = [...prevBag, { ...pokemon, lv: 1 }];
+          AsyncStorage.setItem("myBag", JSON.stringify(updatedBag));
+          return updatedBag;
+        });
+
+        // အောင်မြင်သွားရင် true ပြန်ပေးမယ်
+        return true;
+      } catch (e) {
+        console.error("Storage error:", e);
+        return false;
+      }
     }
     return false;
   };
-  const addCoins = async (amount: number) => {
-    const newCoins = coins + amount;
-    setCoins(newCoins);
-    await AsyncStorage.setItem("coins", JSON.stringify(newCoins));
+
+  // ပိုက်ဆံတိုးတဲ့ Function (Battle နိုင်တဲ့အခါ သုံးဖို့)
+  const addCoins = async (amount) => {
+    setCoins((prev) => {
+      const updatedCoins = prev + amount;
+      AsyncStorage.setItem("coins", JSON.stringify(updatedCoins));
+      return updatedCoins;
+    });
   };
 
   return (
