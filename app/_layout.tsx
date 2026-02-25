@@ -5,7 +5,7 @@ export default function RootLayout() {
     <GameProvider>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="shop" options={{ presentation: "modal" }} />
+        <Stack.Screen name="Shop" options={{ presentation: "modal" }} />
       </Stack>
     </GameProvider>
   );

@@ -6,7 +6,7 @@ import {
   FlatList,
   Image,
   Modal,
-  StyleSheet,
+  StyleSheet, // <--- ဒါလေး ထည့်ဖို့ မမေ့ပါနဲ့
   Text,
   TouchableOpacity,
   View,
@@ -15,13 +15,25 @@ import { useGame } from "./GameContext";
 
 export default function BattleScreen() {
   const router = useRouter();
-  const { myBag, addCoins } = useGame();
+  const gameContext = useGame();
+
+  // Handle case where context might be null
+  if (!gameContext) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Error: Game Context not found</Text>
+      </View>
+    );
+  }
+
+  // အပေါ်မှာ တစ်ခါတည်း destructure လုပ်လိုက်ရင် ရပါပြီ (နှစ်ခါ ရေးစရာမလိုတော့ဘူး)
+  const { myBag, addCoins, removeCoins } = gameContext;
 
   // States
-  const [selectedMyPoke, setSelectedMyPoke] = useState(null); // ကိုယ်ရွေးလိုက်တဲ့အကောင်
-  const [showPicker, setShowPicker] = useState(true); // အကောင်ရွေးဖို့ modal
-  const [enemyID, setEnemyID] = useState(null);
-  const [isImgLoading, setIsImgLoading] = useState(true); // Loading state
+  const [selectedMyPoke, setSelectedMyPoke] = useState<any>(null);
+  const [showPicker, setShowPicker] = useState(true);
+  const [enemyID, setEnemyID] = useState<number | null>(null);
+  const [isImgLoading, setIsImgLoading] = useState(true);
 
   const [playerHP, setPlayerHP] = useState(100);
   const [enemyHP, setEnemyHP] = useState(100);
@@ -32,7 +44,6 @@ export default function BattleScreen() {
   );
 
   useEffect(() => {
-    // Enemy ကို random ရွေးမယ်
     const randomID = Math.floor(Math.random() * 151) + 1;
     setEnemyID(randomID);
   }, []);
@@ -40,9 +51,10 @@ export default function BattleScreen() {
   const handleAttack = () => {
     if (gameState !== "playing" || !selectedMyPoke) return;
 
-    // Player Attack
+    // --- Player Turn ---
     setEnemyOpacity(0.2);
     setTimeout(() => setEnemyOpacity(1), 100);
+
     const dmgToEnemy = Math.floor(Math.random() * 25) + 15;
     const newEHP = Math.max(0, enemyHP - dmgToEnemy);
     setEnemyHP(newEHP);
@@ -53,33 +65,38 @@ export default function BattleScreen() {
       return;
     }
 
-    // Enemy Attack
+    // --- Enemy Turn ---
     setTimeout(() => {
+      if (newEHP <= 0) return;
+
       setPlayerOpacity(0.2);
       setTimeout(() => setPlayerOpacity(1), 100);
+
       const dmgToPlayer = Math.floor(Math.random() * 20) + 10;
       const newPHP = Math.max(0, playerHP - dmgToPlayer);
       setPlayerHP(newPHP);
-      if (newPHP <= 0) setGameState("lost");
+
+      if (newPHP <= 0) {
+        setGameState("lost");
+        removeCoins(10); // Player ရှုံးရင် ၁၀ လျော့မယ်
+      }
     }, 600);
   };
 
   return (
     <View style={styles.container}>
-      {/* 1. Selection Modal - အိတ်ထဲက အကောင်ရွေးရန် */}
+      {/* Selection Modal */}
       <Modal visible={showPicker} animationType="slide">
         <View style={styles.pickerContainer}>
-          {/* အပေါ်က နောက်ပြန်ဆုတ်ခလုတ် */}
           <TouchableOpacity
             style={{ alignSelf: "flex-start", marginBottom: 10 }}
-            onPress={() => router.back()} // Lobby ကို ပြန်သွားမယ်
+            onPress={() => router.back()}
           >
             <Ionicons name="arrow-back" size={30} color="#333" />
           </TouchableOpacity>
 
           <Text style={styles.pickerTitle}>Select Your Pokémon</Text>
 
-          {/* ဒီ FlatList အပိုင်းကို ထည့်ပေးပါ */}
           <FlatList
             data={myBag}
             keyExtractor={(item, index) => index.toString()}
@@ -124,7 +141,7 @@ export default function BattleScreen() {
                 position: isImgLoading ? "absolute" : "relative",
               },
             ]}
-            onLoadEnd={() => setIsImgLoading(false)} // ပုံတက်လာရင် loading ပိတ်မယ်
+            onLoadEnd={() => setIsImgLoading(false)}
           />
         </View>
         <Text style={styles.hpLabel}>Wild Pokémon: {enemyHP}%</Text>
@@ -170,7 +187,6 @@ export default function BattleScreen() {
         </Text>
       </TouchableOpacity>
 
-      {/* Victory/Defeat Modal (အရင်အတိုင်း) */}
       <Modal
         visible={gameState !== "playing" && !showPicker}
         transparent
@@ -180,8 +196,8 @@ export default function BattleScreen() {
           <View style={styles.modalContent}>
             <Text style={styles.resultTitle}>
               {gameState === "won"
-                ? "VICTORY! 🎉 \n💰 50 ရရှိပါတယ်။"
-                : "DEFEAT 💀"}
+                ? "VICTORY! 🎉 \nEarned 50 Coins."
+                : "DEFEAT 💀 \nLost 10 Coins for medical fees!"}
             </Text>
             <TouchableOpacity
               style={styles.backBtn}
@@ -196,6 +212,7 @@ export default function BattleScreen() {
   );
 }
 
+// styles object မင်းအရင်ရေးထားတာကို ဒီအောက်မှာ ဆက်ထည့်ပေးလိုက်ပါ...
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -229,7 +246,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   btnText: { color: "#fff", fontSize: 20, fontWeight: "bold" },
-  // Picker Styles
   pickerContainer: { flex: 1, padding: 40, backgroundColor: "#f5f6fa" },
   pickerTitle: {
     fontSize: 22,
@@ -248,7 +264,6 @@ const styles = StyleSheet.create({
   },
   pickerImg: { width: 50, height: 50, marginRight: 15 },
   pickerName: { fontSize: 18, fontWeight: "bold" },
-  // Modal (Result) Styles
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.7)",

@@ -1,8 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Alert,
+  BackHandler,
   FlatList,
   Image,
   StyleSheet,
@@ -10,7 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useGame } from "./GameContext"; // Context ကို ချိတ်မယ်
+import { useGame } from "./GameContext"; // Ensure correct path to GameContext
 
 const POKEMON_ITEMS = [
   {
@@ -45,28 +46,51 @@ const POKEMON_ITEMS = [
 
 export default function ShopScreen() {
   const router = useRouter();
-  const { coins, buyPokemon } = useGame(); // Context ထဲက data နဲ့ function ကို ယူသုံးမယ်
+  const gameContext = useGame(); // Get context
+
+  // Fix: Check if context is null before destructuring
+  if (!gameContext) {
+    return (
+      <View style={styles.container}>
+        <Text>Error: GameProvider not found</Text>
+      </View>
+    );
+  }
+
+  const { coins, buyPokemon } = gameContext;
+
+  // Handle Hardware Back Button for Android
+  useEffect(() => {
+    const backAction = () => {
+      router.replace("/");
+      return true;
+    };
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction,
+    );
+    return () => backHandler.remove();
+  }, []);
 
   const handleBuy = async (item) => {
     const success = await buyPokemon(item);
+
+    // English Alerts
     if (success === "owned") {
-      Alert.alert(
-        "ရှိပြီးသားဖြစ်သည်!",
-        `${item.name} က သင့်အိတ်ထဲမှာ ရှိနေပြီးသားပါ။`,
-      );
+      Alert.alert("Already Owned!", `${item.name} is already in your bag.`);
     } else if (success) {
-      Alert.alert("အောင်မြင်ပါသည်!", `${item.name} ကို ဝယ်ယူပြီးပါပြီ။`);
+      Alert.alert("Success!", `You have successfully purchased ${item.name}!`);
     } else {
       Alert.alert(
-        "ပိုက်ဆံမလောက်ပါ!",
-        "တိုက်ပွဲများများတိုက်ပြီး Coins အရင်ရှာပါ။",
+        "Insufficient Coins!",
+        "Win more battles to earn more coins.",
       );
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* Header */}
+      {/* Header Section */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.replace("/")}>
           <Ionicons name="arrow-back" size={28} color="white" />
@@ -77,6 +101,7 @@ export default function ShopScreen() {
         </View>
       </View>
 
+      {/* Pokemon List */}
       <FlatList
         data={POKEMON_ITEMS}
         keyExtractor={(item) => item.id}

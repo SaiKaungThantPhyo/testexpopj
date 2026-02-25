@@ -71,9 +71,20 @@ export const GameProvider = ({ children }) => {
       return updatedCoins;
     });
   };
+  // GameContext.tsx ထဲက addCoins အောက်မှာ ဒါလေး ထည့်ပေးပါ
+  const removeCoins = async (amount) => {
+    setCoins((prev) => {
+      const updatedCoins = Math.max(0, prev - amount); // 0 ထက်တော့ မနည်းစေရဘူး
+      AsyncStorage.setItem("coins", JSON.stringify(updatedCoins));
+      return updatedCoins;
+    });
+  };
 
+  // return value ထဲမှာ removeCoins ကိုပါ ထည့်ပေးဖို့ မမေ့ပါနဲ့
   return (
-    <GameContext.Provider value={{ coins, myBag, buyPokemon, addCoins }}>
+    <GameContext.Provider
+      value={{ coins, myBag, buyPokemon, addCoins, removeCoins }}
+    >
       {children}
     </GameContext.Provider>
   );
