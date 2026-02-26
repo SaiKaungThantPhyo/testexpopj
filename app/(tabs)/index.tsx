@@ -1,7 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useIsFocused } from "@react-navigation/native";
 import { useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import React from "react";
 import {
   Image,
   ImageBackground,
@@ -17,16 +16,9 @@ import { useGame } from "../GameContext";
 
 export default function HomeScreen() {
   const router = useRouter();
-  // Context ဆီက coins ကို တိုက်ရိုက်ယူသုံးမယ်
+  // getContextcoins 
   const { coins } = useGame();
-  const isFocused = useIsFocused(); // Screen ကို ကြည့်နေသလား စစ်မယ်
 
-  useEffect(() => {
-    if (isFocused) {
-      // Screen ရှေ့ကို ရောက်လာတိုင်း ဒီနေရာမှာ re-render ဖြစ်အောင် လုပ်လို့ရပါတယ်
-      console.log("Home is focused, coins:", coins);
-    }
-  }, [isFocused, coins]);
 
   const handleRateUs = () => {
     const GOOGLE_PACKAGE_NAME = "com.yourpokename.app";
@@ -51,12 +43,12 @@ export default function HomeScreen() {
               </View>
               <View>
                 <Text style={styles.trainerName}>Trainer Ash</Text>
-                <Text style={styles.levelText}>Lv. 5</Text>
+                {/* <Text style={styles.levelText}>Lv. 5</Text> // Level info is optional, can be added later when leveling system is implemented*/}
               </View>
             </View>
 
             <View style={styles.coinBadge}>
-              {/* Context ကလာတဲ့ coins တိုက်ရိုက်ပြ*/}
+              {/* Context coins display*/}
               <Text style={styles.coinText}>💰 {coins}</Text>
             </View>
           </View>

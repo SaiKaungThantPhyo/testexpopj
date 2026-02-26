@@ -14,7 +14,7 @@ import { useGame } from "../GameContext";
 
 export default function PokemonScreen() {
   const { myBag } = useGame();
-  const [selectedPoke, setSelectedPoke] = useState(null); // ရွေးထားတဲ့ Pokemon သိမ်းဖို့
+  const [selectedPoke, setSelectedPoke] = useState(null); //selected Pokemon to saved
 
   return (
     <View style={styles.container}>
@@ -31,12 +31,12 @@ export default function PokemonScreen() {
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={styles.pokeCard}
-                onPress={() => setSelectedPoke(item)} // နှိပ်လိုက်ရင် Detail ပြမယ်
+                onPress={() => setSelectedPoke(item)} // Detail 
               >
                 <Image source={{ uri: item.image }} style={styles.pokeImg} />
                 <View>
                   <Text style={styles.pokeName}>{item.name}</Text>
-                  <Text style={styles.pokeLv}>Level {item.lv || 1}</Text>
+                  {/* <Text style={styles.pokeLv}>Level {item.lv || 1}</Text> // Level info is optional, can be added later when leveling system is implemented*/}
                 </View>
                 <Ionicons
                   name="chevron-forward"
@@ -70,9 +70,9 @@ export default function PokemonScreen() {
                       style={styles.detailImg}
                     />
                     <Text style={styles.detailName}>{selectedPoke.name}</Text>
-                    <Text style={styles.detailLv}>
+                    {/* <Text style={styles.detailLv}>
                       Level {selectedPoke.lv || 1}
-                    </Text>
+                    </Text> */}
 
                     <View style={styles.statsBox}>
                       <StatBar label="HP" value={80} color="#ff7675" />

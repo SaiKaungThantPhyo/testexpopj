@@ -9,7 +9,7 @@ export const GameProvider = ({ children }) => {
     {
       id: "25",
       name: "Pikachu",
-      lv: 10,
+      // lv: 10,
       image:
         "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png",
     },
@@ -51,7 +51,7 @@ export const GameProvider = ({ children }) => {
     if (coins >= pokemon.price) {
       try {
         const newCoins = coins - pokemon.price;
-        const newBag = [...myBag, { ...pokemon, lv: 1 }];
+        const newBag = [...myBag, { ...pokemon }];
 
         // Update both state and persistent storage
         setCoins(newCoins);

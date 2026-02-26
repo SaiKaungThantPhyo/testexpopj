@@ -129,7 +129,9 @@ export default function BattleScreen() {
               >
                 <Image source={{ uri: item.image }} style={styles.pickerImg} />
                 <Text style={styles.pickerName}>
-                  {item.name} (Lv. {item.lv || 1})
+                  {item.name}
+                  {/* (Lv. {item.lv || 1}) // Level info is optional, can be
+                  added later when leveling system is implemented*/}
                 </Text>
               </TouchableOpacity>
             )}
