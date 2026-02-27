@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
@@ -16,6 +17,7 @@ import { useGame } from "../GameContext";
 
 export default function HomeScreen() {
   const router = useRouter();
+  const tabBarHeight = useBottomTabBarHeight();
   // getContextcoins 
   const { coins } = useGame();
 
@@ -34,7 +36,7 @@ export default function HomeScreen() {
         style={styles.background}
         resizeMode="cover"
       >
-        <SafeAreaView style={styles.safeArea}>
+        <SafeAreaView edges={["top", "left", "right"]} style={styles.safeArea}>
           {/* Header Section */}
           <View style={styles.headerCard}>
             <View style={styles.profileInfo}>
@@ -62,7 +64,7 @@ export default function HomeScreen() {
           </View>
 
           {/* Footer Buttons */}
-          <View style={styles.footer}>
+          <View style={[styles.footer, { paddingBottom: tabBarHeight + 12 }]}>
             <TouchableOpacity
               style={styles.startBtn}
               onPress={() => router.push("/Battle")}
@@ -127,7 +129,7 @@ const styles = StyleSheet.create({
   coinText: { fontWeight: "bold", fontSize: 13, color: "#333" },
   centerArea: { flex: 1, justifyContent: "center", alignItems: "center" },
   mainLogo: { width: 280, height: 120, resizeMode: "contain" },
-  footer: { padding: 20, paddingBottom: 40 },
+  footer: { padding: 20, paddingBottom: 12 },
   startBtn: {
     backgroundColor: "#CC0000",
     flexDirection: "row",
@@ -170,3 +172,4 @@ const styles = StyleSheet.create({
     color: "#333",
   },
 });
+

@@ -1,26 +1,27 @@
 {
-  "expo": {
-    "name": "Pokemon Battle",
-    "slug": "testexpopj",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "splash": {
-      "image": "./assets/images/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "package": "com.saikaung.pokemon"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "1654ab6e-6930-4f0a-8036-15c8fa6468db"
-      }
-    }
-  }
+    "expo":  {
+                 "name":  "Pokemon Battle",
+                 "slug":  "testexpopj",
+                 "version":  "1.0.0",
+                 "orientation":  "portrait",
+                 "icon":  "./assets/images/icon.png",
+                 "splash":  {
+                                "image":  "./assets/images/splash-icon.png",
+                                "resizeMode":  "contain",
+                                "backgroundColor":  "#ffffff"
+                            },
+                 "android":  {
+                                 "adaptiveIcon":  {
+                                                      "foregroundImage":  "./assets/images/adaptive-icon.png",
+                                                      "backgroundColor":  "#ffffff"
+                                                  },
+                                 "package":  "com.saikaung.pokemon"
+                             },
+                 "extra":  {
+                               "eas":  {
+                                           "projectId":  "1654ab6e-6930-4f0a-8036-15c8fa6468db"
+                                       }
+                           },
+                 "scheme":  "pokemonbattle"
+             }
 }
