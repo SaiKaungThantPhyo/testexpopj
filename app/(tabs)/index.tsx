@@ -43,7 +43,7 @@ export default function HomeScreen() {
               </View>
               <View>
                 <Text style={styles.trainerName}>Trainer Ash</Text>
-                {/* <Text style={styles.levelText}>Lv. 5</Text> // Level info is optional, can be added later when leveling system is implemented*/}
+               
               </View>
             </View>
 

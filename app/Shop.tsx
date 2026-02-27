@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useGame } from "./GameContext"; // Ensure correct path to GameContext
+import { useGame } from "./GameContext"; 
 
 const POKEMON_ITEMS = [
   {
@@ -75,7 +75,7 @@ export default function ShopScreen() {
   const handleBuy = async (item) => {
     const success = await buyPokemon(item);
 
-    // English Alerts
+    // Already Owned Alerts
     if (success === "owned") {
       Alert.alert("Already Owned!", `${item.name} is already in your bag.`);
     } else if (success) {

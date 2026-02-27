@@ -1,5 +1,5 @@
 import { Stack } from "expo-router";
-import GameProvider from "./GameContext"; // လမ်းကြောင်းမှန်ပါစေ
+import GameProvider from "./GameContext";
 export default function RootLayout() {
   return (
     <GameProvider>

@@ -31,7 +31,7 @@ export default function PokemonScreen() {
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={styles.pokeCard}
-                onPress={() => setSelectedPoke(item)} // Detail 
+                onPress={() => setSelectedPoke(item)} // Detail
               >
                 <Image source={{ uri: item.image }} style={styles.pokeImg} />
                 <View>
@@ -70,9 +70,6 @@ export default function PokemonScreen() {
                       style={styles.detailImg}
                     />
                     <Text style={styles.detailName}>{selectedPoke.name}</Text>
-                    {/* <Text style={styles.detailLv}>
-                      Level {selectedPoke.lv || 1}
-                    </Text> */}
 
                     <View style={styles.statsBox}>
                       <StatBar label="HP" value={80} color="#ff7675" />
@@ -91,7 +88,7 @@ export default function PokemonScreen() {
   );
 }
 
-// Stat Bar Component လေး
+// Stat Bar Component for Pokemon details
 const StatBar = ({ label, value, color }) => (
   <View style={styles.statRow}>
     <Text style={styles.statLabel}>{label}</Text>
